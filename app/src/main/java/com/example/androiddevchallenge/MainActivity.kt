@@ -19,6 +19,16 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,6 +48,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,9 +77,12 @@ val ripplePadButtonRadius = 72.dp
 fun Modifier.padButtonSized() = this.size(72.dp)
 
 // Start building your app here!
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MyApp() {
-
+    val keypadVM = viewModel<NumericKeypadViewModel>()
+    val keypadVisibility by keypadVM.keyboardIsVisible.collectAsState()
+    val arrangement =  if(keypadVisibility) Arrangement.Bottom else Arrangement.Top
     Surface(color = MaterialTheme.colors.background) {
         Column(
             modifier =
@@ -77,38 +91,55 @@ fun MyApp() {
                 .fillMaxHeight(),
             verticalArrangement = Arrangement.Bottom
         ) {
-            Keypad()
+
+
+            Keypad(keypadVM)
             Spacer(Modifier.size(16.dp))
         }
     }
 }
 
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun Keypad(viewModel: NumericKeypadViewModel = viewModel()) = Column(Modifier.wrapContentHeight()) {
+    // Can't use by when de-structuring
     val input = viewModel.input.collectAsState(initial = Triple("00h", "00m", "00s"))
     val (hours, mins, secs) = input.value
+    val isVisible by viewModel.keyboardIsVisible.collectAsState()
+
+    val tgtWidth = if(isVisible) 0.6f else 0f
+    val lineWidth by animateFloatAsState(targetValue = tgtWidth)
+
     val alignCenter = Arrangement.Center
     val wFull = Modifier.fillMaxWidth()
 
-    Row(modifier =wFull, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround) {
-        Box(modifier = Modifier.weight(1f)) {}
-        Row(modifier =Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround) {
-            Text(text = hours, textAlign = TextAlign.Center)
-            Text(text = mins, textAlign = TextAlign.Center)
-            Text(text = secs, textAlign = TextAlign.Center)
-        }
+    AnimatedVisibility(
+        visible = isVisible,
+        modifier = wFull,
+        enter = fadeIn() + expandHorizontally(Alignment.CenterHorizontally),
+        exit = fadeOut() + shrinkHorizontally(Alignment.CenterHorizontally)
+    ) {
+        Row(modifier =wFull, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround) {
+            Box(modifier = Modifier.weight(1f)) {}
+            Row(modifier =Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround) {
+                Text(text = hours, textAlign = TextAlign.Center)
+                Text(text = mins, textAlign = TextAlign.Center)
+                Text(text = secs, textAlign = TextAlign.Center)
+            }
 
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-            IconPadButton(resId = R.drawable.ic_delete, onClick = viewModel::delete)
-        }
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                IconButton(resId = R.drawable.ic_delete, onClick = viewModel::delete)
+            }
 
+        }
     }
-    Spacer(modifier = Modifier.size(24.dp))
+
+    Spacer(modifier = Modifier.size(8.dp))
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         Box(
             Modifier
-                .fillMaxWidth(0.6f)
+                .fillMaxWidth(lineWidth)
                 .size(1.dp)
                 .background(Color.LightGray))
     }
@@ -143,13 +174,13 @@ fun Keypad(viewModel: NumericKeypadViewModel = viewModel()) = Column(Modifier.wr
         Row(modifier =wFull, horizontalArrangement = alignCenter) {
             Box(modifier = Modifier.padButtonSized())
             PadButton(0, viewModel)
-            IconPadButton(R.drawable.ic_check, onClick = viewModel::startCountDown)
+            IconPadButton(R.drawable.ic_check, viewIndex = 10, onClick = viewModel::startCountDown)
         }
     }
 }
 
-
-@Composable fun IconPadButton(@DrawableRes resId: Int, modifier: Modifier = Modifier,  onClick: () -> Unit)  {
+@Composable
+fun IconButton(@DrawableRes resId: Int, modifier: Modifier = Modifier,  onClick: () -> Unit) {
     val icon = painterResource(id = resId)
     Box(
         modifier =
@@ -163,19 +194,50 @@ fun Keypad(viewModel: NumericKeypadViewModel = viewModel()) = Column(Modifier.wr
     }
 }
 
+@Composable fun IconPadButton(@DrawableRes resId: Int, viewIndex: Int, modifier: Modifier = Modifier,  onClick: () -> Unit)  {
+    AnimatedKeyPadContent(viewIndex = viewIndex, viewModel = viewModel()) {
+        IconButton(resId, modifier, onClick)
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
 @Composable fun PadButton(
     number: Int,
     viewModel: NumericKeypadViewModel,
     modifier: Modifier = Modifier,
 ) {
-    TextButton(
-        modifier = modifier.padButtonSized(),
-        shape = CircleShape,
-        onClick = { viewModel.typeNumber(number) },
-    ) {
-        Text(text = "$number")
+    AnimatedKeyPadContent(viewIndex = number, viewModel = viewModel) {
+        TextButton(
+            modifier = modifier.padButtonSized(),
+            shape = CircleShape,
+            onClick = { viewModel.typeNumber(number) },
+        ) {
+            Text(text = "$number")
+        }
     }
 }
+
+
+@Composable
+@OptIn(ExperimentalAnimationApi::class)
+fun AnimatedKeyPadContent(viewIndex: Int, viewModel: NumericKeypadViewModel, content: @Composable () -> Unit) {
+    val visibilityState by viewModel.keyboardIsVisible.collectAsState()
+    val staggeringDelayIn = (30 * viewIndex)
+    val staggeringDelayOut = (30 * (11-viewIndex)) // because we have 11 buttons
+    val enterAnimation = fadeIn(animationSpec = tween(delayMillis = staggeringDelayIn)) + expandIn(animationSpec = tween(delayMillis = staggeringDelayIn))
+    val outAnimation = fadeOut(animationSpec = tween(delayMillis = staggeringDelayOut)) + shrinkOut(animationSpec = tween(delayMillis = staggeringDelayOut))
+    // visibilityState.value
+    AnimatedVisibility(
+        visible = visibilityState,
+        enter = enterAnimation,
+        exit = outAnimation,
+        initiallyVisible = false
+    ) {
+        content()
+    }
+}
+
+
 
 /*
 @Preview("Light Theme", widthDp = 360, heightDp = 640)

@@ -3,6 +3,7 @@ package com.example.androiddevchallenge
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
 // 6 digits; 00h 00m 00s
@@ -11,6 +12,9 @@ internal const val MAX_LENGTH = 2 * 3
 
 
 class NumericKeypadViewModel : ViewModel() {
+
+    private val _keyboardIsVisible = MutableStateFlow(true)
+    val keyboardIsVisible: StateFlow<Boolean> get() = _keyboardIsVisible
 
     private val _input = MutableStateFlow("")
     val input: Flow<Triple<String, String, String>> =
@@ -37,7 +41,11 @@ class NumericKeypadViewModel : ViewModel() {
     }
 
     fun startCountDown() {
-        println(":)")
+        _keyboardIsVisible.value = false
+    }
+
+    fun stopCountDown() {
+        _keyboardIsVisible.value = true
     }
 
     private fun String.padStringWithZeros(desiredLength: Int): String = run {
