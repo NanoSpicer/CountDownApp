@@ -15,15 +15,7 @@ class NumericKeypadViewModel : ViewModel() {
     private val _input = MutableStateFlow("")
     val input: Flow<Triple<String, String, String>> =
         _input
-            .map { rawValue ->
-                if(rawValue.length < MAX_LENGTH) {
-                    val diff = MAX_LENGTH - rawValue.length
-                    val pad = "0".repeat(diff)
-                    "$pad$rawValue" // Padd it with Zeros
-                } else {
-                    rawValue
-                }
-            }
+            .map { rawValue -> rawValue.padStringWithZeros(MAX_LENGTH) }
             .map { paddedString ->
                 val hours = paddedString.substring(0, 2)
                 val mins = paddedString.substring(2, 4)
@@ -34,6 +26,7 @@ class NumericKeypadViewModel : ViewModel() {
 
     fun typeNumber(num: Int) {
         if(_input.value.length == MAX_LENGTH) return
+        if(num == 0 && _input.value.isEmpty()) return
         _input.value = _input.value + num.toShort()
     }
 
@@ -45,6 +38,16 @@ class NumericKeypadViewModel : ViewModel() {
 
     fun startCountDown() {
         println(":)")
+    }
+
+    private fun String.padStringWithZeros(desiredLength: Int): String = run {
+        if(length < desiredLength) {
+            val diff = desiredLength - length
+            val pad = "0".repeat(diff)
+            "$pad$this" // Pad it with Zeros
+        } else {
+            this
+        }
     }
 
 
