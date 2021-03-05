@@ -13,7 +13,7 @@ internal const val MAX_LENGTH = 2 * 3
 class NumericKeypadViewModel : ViewModel() {
 
     private val _input = MutableStateFlow("")
-    val input: Flow<String> =
+    val input: Flow<Triple<String, String, String>> =
         _input
             .map { rawValue ->
                 if(rawValue.length < MAX_LENGTH) {
@@ -28,9 +28,8 @@ class NumericKeypadViewModel : ViewModel() {
                 val hours = paddedString.substring(0, 2)
                 val mins = paddedString.substring(2, 4)
                 val secs = paddedString.substring(4, 6)
-                Triple(hours, mins, secs)
+                Triple("${hours}h", "${mins}m", "${secs}s")
             }
-            .map { (h, m, s) -> "${h}h ${m}m ${s}s"}
 
 
     fun typeNumber(num: Int) {

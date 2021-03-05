@@ -86,14 +86,19 @@ fun MyApp() {
 
 @Composable
 fun Keypad(viewModel: NumericKeypadViewModel = viewModel()) = Column(Modifier.wrapContentHeight()) {
-    val input = viewModel.input.collectAsState(initial = "")
-    val text = input.value
+    val input = viewModel.input.collectAsState(initial = Triple("00h", "00m", "00s"))
+    val (hours, mins, secs) = input.value
     val alignCenter = Arrangement.Center
     val wFull = Modifier.fillMaxWidth()
 
     Row(modifier =wFull, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround) {
         Box(modifier = Modifier.weight(1f)) {}
-        Text(modifier = Modifier.weight(1f), text = text, textAlign = TextAlign.Center)
+        Row(modifier =Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround) {
+            Text(text = hours, textAlign = TextAlign.Center)
+            Text(text = mins, textAlign = TextAlign.Center)
+            Text(text = secs, textAlign = TextAlign.Center)
+        }
+
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
             IconPadButton(resId = R.drawable.ic_delete, onClick = viewModel::delete)
         }
