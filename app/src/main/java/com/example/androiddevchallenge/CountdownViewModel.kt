@@ -1,6 +1,7 @@
 package com.example.androiddevchallenge
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +12,7 @@ internal const val MAX_LENGTH = 2 * 3
 
 
 
-class NumericKeypadViewModel : ViewModel() {
+class CountdownViewModel(app: Application) : AndroidViewModel(app) {
 
     private val _keyboardIsVisible = MutableStateFlow(true)
     val keyboardIsVisible: StateFlow<Boolean> get() = _keyboardIsVisible

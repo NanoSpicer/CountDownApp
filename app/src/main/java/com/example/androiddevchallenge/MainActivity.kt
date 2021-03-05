@@ -21,6 +21,7 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.AnimationConstants
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
@@ -39,6 +40,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
@@ -80,29 +82,57 @@ fun Modifier.padButtonSized() = this.size(72.dp)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MyApp() {
-    val keypadVM = viewModel<NumericKeypadViewModel>()
-    val keypadVisibility by keypadVM.keyboardIsVisible.collectAsState()
-    val arrangement =  if(keypadVisibility) Arrangement.Bottom else Arrangement.Top
+    val fullSize = Modifier
+        .fillMaxWidth()
+        .fillMaxHeight()
+    val keypadVM = viewModel<CountdownViewModel>()
+
+    val isKeyboardVisible by keypadVM.keyboardIsVisible.collectAsState()
+    val isCounterVisible = !isKeyboardVisible
+
     Surface(color = MaterialTheme.colors.background) {
+        
+        Column(modifier = fullSize) {
+            
+
+        }
+        
         Column(
-            modifier =
-            Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
+            modifier = fullSize,
             verticalArrangement = Arrangement.Bottom
         ) {
-
-
             Keypad(keypadVM)
             Spacer(Modifier.size(16.dp))
         }
+
+
+        Column(
+            modifier = fullSize,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            val delay = AnimationConstants.DefaultDurationMillis*2
+            val enterAnimation = fadeIn(animationSpec = tween(delayMillis = delay)) + expandIn(Alignment.Center, animationSpec = tween(delayMillis = delay))
+            val outAnimation = fadeOut(animationSpec = tween(delayMillis = delay)) + shrinkOut(Alignment.Center, animationSpec = tween(delayMillis = delay))
+            AnimatedVisibility(
+                visible = isCounterVisible,
+                enter = enterAnimation,
+                exit = outAnimation
+            ) {
+                val modifs = Modifier.padding(36.dp).clip(CircleShape).background(MaterialTheme.colors.primary)
+                IconButton(R.drawable.ic_stop, modifs, keypadVM::stopCountDown)
+            }
+        }
+
+
+
     }
 }
 
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun Keypad(viewModel: NumericKeypadViewModel = viewModel()) = Column(Modifier.wrapContentHeight()) {
+fun Keypad(viewModel: CountdownViewModel = viewModel()) = Column(Modifier.wrapContentHeight()) {
     // Can't use by when de-structuring
     val input = viewModel.input.collectAsState(initial = Triple("00h", "00m", "00s"))
     val (hours, mins, secs) = input.value
@@ -181,6 +211,7 @@ fun Keypad(viewModel: NumericKeypadViewModel = viewModel()) = Column(Modifier.wr
 
 @Composable
 fun IconButton(@DrawableRes resId: Int, modifier: Modifier = Modifier,  onClick: () -> Unit) {
+    val tint = if(resId == R.drawable.ic_stop) Color.White else MaterialTheme.colors.primary
     val icon = painterResource(id = resId)
     Box(
         modifier =
@@ -190,7 +221,7 @@ fun IconButton(@DrawableRes resId: Int, modifier: Modifier = Modifier,  onClick:
             .clickable(role = Role.Button) { onClick() },
         contentAlignment = Alignment.Center,
     ) {
-        Image(painter = icon, contentDescription = "Check Icon", colorFilter = ColorFilter.tint(MaterialTheme.colors.primaryVariant))
+        Image(painter = icon, contentDescription = "Check Icon", colorFilter = ColorFilter.tint(tint))
     }
 }
 
@@ -203,7 +234,7 @@ fun IconButton(@DrawableRes resId: Int, modifier: Modifier = Modifier,  onClick:
 @OptIn(ExperimentalAnimationApi::class)
 @Composable fun PadButton(
     number: Int,
-    viewModel: NumericKeypadViewModel,
+    viewModel: CountdownViewModel,
     modifier: Modifier = Modifier,
 ) {
     AnimatedKeyPadContent(viewIndex = number, viewModel = viewModel) {
@@ -220,7 +251,7 @@ fun IconButton(@DrawableRes resId: Int, modifier: Modifier = Modifier,  onClick:
 
 @Composable
 @OptIn(ExperimentalAnimationApi::class)
-fun AnimatedKeyPadContent(viewIndex: Int, viewModel: NumericKeypadViewModel, content: @Composable () -> Unit) {
+fun AnimatedKeyPadContent(viewIndex: Int, viewModel: CountdownViewModel, content: @Composable () -> Unit) {
     val visibilityState by viewModel.keyboardIsVisible.collectAsState()
     val staggeringDelayIn = (30 * viewIndex)
     val staggeringDelayOut = (30 * (11-viewIndex)) // because we have 11 buttons
