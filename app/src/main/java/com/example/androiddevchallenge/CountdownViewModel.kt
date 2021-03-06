@@ -42,7 +42,7 @@ class CountdownViewModel(app: Application) : AndroidViewModel(app) {
     private val _countingDownTextLabel = MutableStateFlow(TIMER_AT_ZERO)
     val countingDownTextLabel: StateFlow<String> get() = _countingDownTextLabel
 
-    private val _countDownProgresses = MutableStateFlow(Triple(0f, 0f, 0f))
+    private val _countDownProgresses = MutableStateFlow(Triple(1f, 1f, 1f))
     // Containing hours,  mins and secs progress
     val countDownProgresses: StateFlow<Triple<Float, Float, Float>> get() = _countDownProgresses
 
@@ -67,27 +67,32 @@ class CountdownViewModel(app: Application) : AndroidViewModel(app) {
         _keyboardIsVisible.value = false
 
         countingJob = viewModelScope.launch(Dispatchers.Default) {
-            val (hours, mins, secs) = hoursMinsSecs.first()
+            val (targetHours, targetMins, targetSeconds) = hoursMinsSecs.first()
             var now = System.currentTimeMillis()
-            val targetTime = now + hours.fromHoursToMillis() + mins.fromMinutesToMillis() + secs.fromSecondsToMillis()
+            val targetTime = (
+                now
+                + targetHours.fromHoursToMillis()
+                + targetMins.fromMinutesToMillis()
+                + targetSeconds.fromSecondsToMillis()
+            )
             do {
                 now = System.currentTimeMillis().coerceAtMost(targetTime)
                 var millisDiff = targetTime - now
-                val missingHours = millisDiff / (60*60*1000)
-                millisDiff -= missingHours*(60*60*1000)
-                val missingMins = millisDiff / (60*1000)
+                val missingHours = millisDiff / (60*60*1000L)
+                millisDiff -= missingHours*(60*60*1000L)
+                val missingMins = millisDiff / (60*1000L)
                 millisDiff -= missingMins*(60*1000)
                 val missingSecs = millisDiff / 1000
                 millisDiff -= missingSecs*(1000)
-                val modSecs = millisDiff
+                val missingMillis = millisDiff
 
                 _countingDownTextLabel.value = "${missingHours.toZeroPaddedString(2)}:${missingMins.toZeroPaddedString(2)}:${missingSecs.toZeroPaddedString(2)}"
 
 
                 _countDownProgresses.value = Triple(
-                    0f,
-                    0f,
-                    (modSecs.toFloat()/1000L).coerceIn(0f..1f)
+                    safelyDivideAndCoerce(missingMins, 60L),
+                    safelyDivideAndCoerce(missingSecs, 60L),
+                    safelyDivideAndCoerce(missingMillis, 1000L)
                 )
 
             } while(now < targetTime && isActive)
@@ -102,6 +107,12 @@ class CountdownViewModel(app: Application) : AndroidViewModel(app) {
         _keyboardIsVisible.value = true
         countingJob?.cancel()
         _countingDownTextLabel.value = TIMER_AT_ZERO
+        _countDownProgresses.value = Triple(1f,1f,1f)
+    }
+
+    private fun safelyDivideAndCoerce(first: Long, second: Long): Float {
+        if(second == 0L) return 0f
+        return (first.toDouble() / second.toDouble()).toFloat().coerceIn(0f..1f)
     }
 
 
