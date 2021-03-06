@@ -1,10 +1,12 @@
 package com.example.androiddevchallenge
 
 import android.app.Application
+import androidx.compose.animation.core.AnimationConstants
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -75,6 +77,7 @@ class CountdownViewModel(app: Application) : AndroidViewModel(app) {
                 + targetMins.fromMinutesToMillis()
                 + targetSeconds.fromSecondsToMillis()
             )
+            delay((AnimationConstants.DefaultDurationMillis*4.5).toLong())
             do {
                 now = System.currentTimeMillis().coerceAtMost(targetTime)
                 var millisDiff = targetTime - now

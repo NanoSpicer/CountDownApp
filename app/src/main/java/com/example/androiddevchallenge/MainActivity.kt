@@ -96,8 +96,19 @@ fun MyApp() {
 
     Surface(color = MaterialTheme.colors.background, modifier = fullSize) {
 
+        val delay = AnimationConstants.DefaultDurationMillis*2
+        val enterAnimation = fadeIn(animationSpec = tween(delayMillis = delay)) + expandIn(Alignment.Center, animationSpec = tween(delayMillis = delay))
+        val outAnimation = fadeOut(animationSpec = tween(delayMillis = delay)) + shrinkOut(Alignment.Center, animationSpec = tween(delayMillis = delay))
+        AnimatedVisibility(
+            visible = isCounterVisible,
+            enter = enterAnimation,
+            exit = outAnimation
+        ) {
         Box {
-            CountDownView(keypadVM)
+
+                CountDownView(keypadVM)
+            }
+
         }
 
         
