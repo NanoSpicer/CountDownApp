@@ -94,7 +94,6 @@ class CountdownViewModel(app: Application) : AndroidViewModel(app) {
                     safelyDivideAndCoerce(missingSecs, 60L),
                     safelyDivideAndCoerce(missingMillis, 1000L)
                 )
-
             } while(now < targetTime && isActive)
 
             withContext(Dispatchers.Main) {

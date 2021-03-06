@@ -286,7 +286,11 @@ fun CountDownView(vm: CountdownViewModel) = Box(
     val counterText by vm.countingDownTextLabel.collectAsState()
     val progresses = vm.countDownProgresses.collectAsState()
 
-    val (progHours, progMins, progSecs) = progresses.value
+    val (_progHours, _progMins, progSecs) = progresses.value
+
+    val progHours by animateFloatAsState(targetValue = _progHours)
+    val progMins by animateFloatAsState(targetValue = _progMins)
+    //val progSecs by animateFloatAsState(targetValue = _progSecs,)
 
     Column(modifier = Modifier.fillMaxWidth(0.7f), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(counterText, style = MaterialTheme.typography.h1)
