@@ -44,6 +44,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -61,13 +62,16 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.androiddevchallenge.ui.theme.ColorHours
+import com.example.androiddevchallenge.ui.theme.ColorMinutes
+import com.example.androiddevchallenge.ui.theme.ColorSeconds
 import com.example.androiddevchallenge.ui.theme.MyTheme
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyTheme {
+            MyTheme(darkTheme = true) {
                 MyApp()
             }
         }
@@ -76,7 +80,7 @@ class MainActivity : AppCompatActivity() {
 
 
 val ripplePadButtonRadius = 72.dp
-fun Modifier.padButtonSized() = this.size(72.dp)
+fun Modifier.padButtonSized() = this.size(82.dp)
 
 // Start building your app here!
 @OptIn(ExperimentalAnimationApi::class)
@@ -90,12 +94,12 @@ fun MyApp() {
     val isKeyboardVisible by keypadVM.keyboardIsVisible.collectAsState()
     val isCounterVisible = !isKeyboardVisible
 
-    Surface(color = MaterialTheme.colors.background) {
-        
-        Column(modifier = fullSize) {
-            
+    Surface(color = MaterialTheme.colors.background, modifier = fullSize) {
 
+        Box {
+            CountDownView(keypadVM)
         }
+
         
         Column(
             modifier = fullSize,
@@ -119,7 +123,10 @@ fun MyApp() {
                 enter = enterAnimation,
                 exit = outAnimation
             ) {
-                val modifs = Modifier.padding(36.dp).clip(CircleShape).background(MaterialTheme.colors.primary)
+                val modifs = Modifier
+                    .padding(36.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colors.primary)
                 IconButton(R.drawable.ic_stop, modifs, keypadVM::stopCountDown)
             }
         }
@@ -221,7 +228,7 @@ fun IconButton(@DrawableRes resId: Int, modifier: Modifier = Modifier,  onClick:
             .clickable(role = Role.Button) { onClick() },
         contentAlignment = Alignment.Center,
     ) {
-        Image(painter = icon, contentDescription = "Check Icon", colorFilter = ColorFilter.tint(tint))
+        Image( modifier = Modifier.size(MaterialTheme.typography.button.fontSize.value.dp),painter = icon, contentDescription = "Check Icon", colorFilter = ColorFilter.tint(tint))
     }
 }
 
@@ -266,6 +273,56 @@ fun AnimatedKeyPadContent(viewIndex: Int, viewModel: CountdownViewModel, content
     ) {
         content()
     }
+}
+
+
+@Composable
+fun CountDownView(vm: CountdownViewModel) = Box(
+    Modifier
+        .fillMaxWidth()
+        .fillMaxHeight(0.4f), contentAlignment = Alignment.Center
+) {
+
+    val counterText by vm.countingDownTextLabel.collectAsState()
+    val progresses = vm.countDownProgresses.collectAsState()
+
+    val (progHours, progMins, progSecs) = progresses.value
+
+    Column(modifier = Modifier.fillMaxWidth(0.7f), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(counterText, style = MaterialTheme.typography.h1)
+    }
+
+    Column(modifier = Modifier
+        .padding(16.dp)
+        .padding(top = 4.dp)
+        .fillMaxWidth(0.68f), horizontalAlignment = Alignment.CenterHorizontally) {
+        CircularProgressIndicator(progress = progHours,
+            Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(), strokeWidth = 12.dp, color = ColorHours)
+    }
+
+    Column(modifier = Modifier
+        .padding(16.dp)
+        .padding(top = 19.dp)
+        .fillMaxWidth(0.60f), horizontalAlignment = Alignment.CenterHorizontally) {
+        CircularProgressIndicator(progress = progMins,
+            Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(), strokeWidth = 8.dp, color = ColorMinutes)
+    }
+
+    Column( modifier = Modifier
+        .padding(16.dp)
+        .fillMaxWidth(0.7f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        CircularProgressIndicator(progress = progSecs,
+            Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(), strokeWidth = 1.dp, color = ColorSeconds)
+    }
+
+
+
 }
 
 
