@@ -78,7 +78,6 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-
 val ripplePadButtonRadius = 72.dp
 fun Modifier.padButtonSized() = this.size(82.dp)
 
@@ -96,7 +95,7 @@ fun MyApp() {
 
     Surface(color = MaterialTheme.colors.background, modifier = fullSize) {
 
-        val delay = AnimationConstants.DefaultDurationMillis*2
+        val delay = AnimationConstants.DefaultDurationMillis * 2
         val enterAnimation = fadeIn(animationSpec = tween(delayMillis = delay)) + expandIn(Alignment.Center, animationSpec = tween(delayMillis = delay))
         val outAnimation = fadeOut(animationSpec = tween(delayMillis = delay)) + shrinkOut(Alignment.Center, animationSpec = tween(delayMillis = delay))
         AnimatedVisibility(
@@ -104,14 +103,12 @@ fun MyApp() {
             enter = enterAnimation,
             exit = outAnimation
         ) {
-        Box {
+            Box {
 
                 CountDownView(keypadVM)
             }
-
         }
 
-        
         Column(
             modifier = fullSize,
             verticalArrangement = Arrangement.Bottom
@@ -120,13 +117,12 @@ fun MyApp() {
             Spacer(Modifier.size(16.dp))
         }
 
-
         Column(
             modifier = fullSize,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom
         ) {
-            val delay = AnimationConstants.DefaultDurationMillis*2
+            val delay = AnimationConstants.DefaultDurationMillis * 2
             val enterAnimation = fadeIn(animationSpec = tween(delayMillis = delay)) + expandIn(Alignment.Center, animationSpec = tween(delayMillis = delay))
             val outAnimation = fadeOut(animationSpec = tween(delayMillis = delay)) + shrinkOut(Alignment.Center, animationSpec = tween(delayMillis = delay))
             AnimatedVisibility(
@@ -141,12 +137,8 @@ fun MyApp() {
                 IconButton(R.drawable.ic_stop, modifs, keypadVM::stopCountDown)
             }
         }
-
-
-
     }
 }
-
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -156,7 +148,7 @@ fun Keypad(viewModel: CountdownViewModel = viewModel()) = Column(Modifier.wrapCo
     val (hours, mins, secs) = input.value
     val isVisible by viewModel.keyboardIsVisible.collectAsState()
 
-    val tgtWidth = if(isVisible) 0.6f else 0f
+    val tgtWidth = if (isVisible) 0.6f else 0f
     val lineWidth by animateFloatAsState(targetValue = tgtWidth)
 
     val alignCenter = Arrangement.Center
@@ -168,9 +160,9 @@ fun Keypad(viewModel: CountdownViewModel = viewModel()) = Column(Modifier.wrapCo
         enter = fadeIn() + expandHorizontally(Alignment.CenterHorizontally),
         exit = fadeOut() + shrinkHorizontally(Alignment.CenterHorizontally)
     ) {
-        Row(modifier =wFull, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround) {
+        Row(modifier = wFull, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround) {
             Box(modifier = Modifier.weight(1f)) {}
-            Row(modifier =Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround) {
+            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround) {
                 Text(text = hours, textAlign = TextAlign.Center)
                 Text(text = mins, textAlign = TextAlign.Center)
                 Text(text = secs, textAlign = TextAlign.Center)
@@ -179,7 +171,6 @@ fun Keypad(viewModel: CountdownViewModel = viewModel()) = Column(Modifier.wrapCo
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                 IconButton(resId = R.drawable.ic_delete, onClick = viewModel::delete)
             }
-
         }
     }
 
@@ -189,29 +180,30 @@ fun Keypad(viewModel: CountdownViewModel = viewModel()) = Column(Modifier.wrapCo
             Modifier
                 .fillMaxWidth(lineWidth)
                 .size(1.dp)
-                .background(Color.LightGray))
+                .background(Color.LightGray)
+        )
     }
     Spacer(modifier = Modifier.size(8.dp))
 
     Column {
         val spaceSize = Modifier.size(4.dp)
-        Row (modifier =wFull, horizontalArrangement = alignCenter){
-            PadButton(1,viewModel)
+        Row(modifier = wFull, horizontalArrangement = alignCenter) {
+            PadButton(1, viewModel)
             Spacer(modifier = spaceSize)
-            PadButton(2,viewModel)
+            PadButton(2, viewModel)
             Spacer(modifier = spaceSize)
-            PadButton(3,viewModel)
+            PadButton(3, viewModel)
         }
         Spacer(modifier = spaceSize)
-        Row (modifier =wFull, horizontalArrangement = alignCenter){
-            PadButton(4,viewModel)
+        Row(modifier = wFull, horizontalArrangement = alignCenter) {
+            PadButton(4, viewModel)
             Spacer(modifier = spaceSize)
-            PadButton(5,viewModel)
+            PadButton(5, viewModel)
             Spacer(modifier = spaceSize)
-            PadButton(6,viewModel)
+            PadButton(6, viewModel)
         }
         Spacer(modifier = spaceSize)
-        Row (modifier =wFull, horizontalArrangement = alignCenter){
+        Row(modifier = wFull, horizontalArrangement = alignCenter) {
             PadButton(7, viewModel)
             Spacer(modifier = spaceSize)
             PadButton(8, viewModel)
@@ -219,7 +211,7 @@ fun Keypad(viewModel: CountdownViewModel = viewModel()) = Column(Modifier.wrapCo
             PadButton(9, viewModel)
         }
         Spacer(modifier = spaceSize)
-        Row(modifier =wFull, horizontalArrangement = alignCenter) {
+        Row(modifier = wFull, horizontalArrangement = alignCenter) {
             Box(modifier = Modifier.padButtonSized())
             PadButton(0, viewModel)
             IconPadButton(R.drawable.ic_check, viewIndex = 10, onClick = viewModel::startCountDown)
@@ -228,8 +220,8 @@ fun Keypad(viewModel: CountdownViewModel = viewModel()) = Column(Modifier.wrapCo
 }
 
 @Composable
-fun IconButton(@DrawableRes resId: Int, modifier: Modifier = Modifier,  onClick: () -> Unit) {
-    val tint = if(resId == R.drawable.ic_stop) Color.White else MaterialTheme.colors.primary
+fun IconButton(@DrawableRes resId: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val tint = if (resId == R.drawable.ic_stop) Color.White else MaterialTheme.colors.primary
     val icon = painterResource(id = resId)
     Box(
         modifier =
@@ -239,11 +231,11 @@ fun IconButton(@DrawableRes resId: Int, modifier: Modifier = Modifier,  onClick:
             .clickable(role = Role.Button) { onClick() },
         contentAlignment = Alignment.Center,
     ) {
-        Image( modifier = Modifier.size(MaterialTheme.typography.button.fontSize.value.dp),painter = icon, contentDescription = "Check Icon", colorFilter = ColorFilter.tint(tint))
+        Image(modifier = Modifier.size(MaterialTheme.typography.button.fontSize.value.dp), painter = icon, contentDescription = "Check Icon", colorFilter = ColorFilter.tint(tint))
     }
 }
 
-@Composable fun IconPadButton(@DrawableRes resId: Int, viewIndex: Int, modifier: Modifier = Modifier,  onClick: () -> Unit)  {
+@Composable fun IconPadButton(@DrawableRes resId: Int, viewIndex: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
     AnimatedKeyPadContent(viewIndex = viewIndex, viewModel = viewModel()) {
         IconButton(resId, modifier, onClick)
     }
@@ -266,13 +258,12 @@ fun IconButton(@DrawableRes resId: Int, modifier: Modifier = Modifier,  onClick:
     }
 }
 
-
 @Composable
 @OptIn(ExperimentalAnimationApi::class)
 fun AnimatedKeyPadContent(viewIndex: Int, viewModel: CountdownViewModel, content: @Composable () -> Unit) {
     val visibilityState by viewModel.keyboardIsVisible.collectAsState()
     val staggeringDelayIn = (30 * viewIndex)
-    val staggeringDelayOut = (30 * (11-viewIndex)) // because we have 11 buttons
+    val staggeringDelayOut = (30 * (11 - viewIndex)) // because we have 11 buttons
     val enterAnimation = fadeIn(animationSpec = tween(delayMillis = staggeringDelayIn)) + expandIn(animationSpec = tween(delayMillis = staggeringDelayIn))
     val outAnimation = fadeOut(animationSpec = tween(delayMillis = staggeringDelayOut)) + shrinkOut(animationSpec = tween(delayMillis = staggeringDelayOut))
     // visibilityState.value
@@ -286,12 +277,12 @@ fun AnimatedKeyPadContent(viewIndex: Int, viewModel: CountdownViewModel, content
     }
 }
 
-
 @Composable
 fun CountDownView(vm: CountdownViewModel) = Box(
     Modifier
         .fillMaxWidth()
-        .fillMaxHeight(0.4f), contentAlignment = Alignment.Center
+        .fillMaxHeight(0.4f),
+    contentAlignment = Alignment.Center
 ) {
 
     val counterText by vm.countingDownTextLabel.collectAsState()
@@ -301,46 +292,59 @@ fun CountDownView(vm: CountdownViewModel) = Box(
 
     val progHours by animateFloatAsState(targetValue = _progHours)
     val progMins by animateFloatAsState(targetValue = _progMins)
-    //val progSecs by animateFloatAsState(targetValue = _progSecs,)
+    // val progSecs by animateFloatAsState(targetValue = _progSecs,)
 
     Column(modifier = Modifier.fillMaxWidth(0.7f), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(counterText, style = MaterialTheme.typography.h1)
     }
 
-    Column(modifier = Modifier
-        .padding(16.dp)
-        .padding(top = 4.dp)
-        .fillMaxWidth(0.68f), horizontalAlignment = Alignment.CenterHorizontally) {
-        CircularProgressIndicator(progress = progHours,
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .padding(top = 4.dp)
+            .fillMaxWidth(0.68f),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator(
+            progress = progHours,
             Modifier
                 .fillMaxHeight()
-                .fillMaxWidth(), strokeWidth = 12.dp, color = ColorHours)
+                .fillMaxWidth(),
+            strokeWidth = 12.dp, color = ColorHours
+        )
     }
 
-    Column(modifier = Modifier
-        .padding(16.dp)
-        .padding(top = 19.dp)
-        .fillMaxWidth(0.60f), horizontalAlignment = Alignment.CenterHorizontally) {
-        CircularProgressIndicator(progress = progMins,
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .padding(top = 19.dp)
+            .fillMaxWidth(0.60f),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator(
+            progress = progMins,
             Modifier
                 .fillMaxHeight()
-                .fillMaxWidth(), strokeWidth = 8.dp, color = ColorMinutes)
+                .fillMaxWidth(),
+            strokeWidth = 8.dp, color = ColorMinutes
+        )
     }
 
-    Column( modifier = Modifier
-        .padding(16.dp)
-        .fillMaxWidth(0.7f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        CircularProgressIndicator(progress = progSecs,
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(0.7f),
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
+    ) {
+        CircularProgressIndicator(
+            progress = progSecs,
             Modifier
                 .fillMaxHeight()
-                .fillMaxWidth(), strokeWidth = 1.dp, color = ColorSeconds)
+                .fillMaxWidth(),
+            strokeWidth = 1.dp, color = ColorSeconds
+        )
     }
-
-
-
 }
-
-
 
 /*
 @Preview("Light Theme", widthDp = 360, heightDp = 640)
